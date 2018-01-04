@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Bare - Start Bootstrap Template</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{base_url()}}/public/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <style>
+      body {
+        padding-top: 54px;
+      }
+      @media (min-width: 992px) {
+        body {
+          padding-top: 56px;
+        }
+      }
+
+    </style>
+
+  </head>
+
+  <body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="#">......</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+          
+        </div>
+      </div>
+    </nav>
+
+    <!-- Page Content -->
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-6 col-md-6 center-block text-center" style="margin: 100px;">
+          {# <h1 class="mt-5"></h1> #}
+        <form name="excelupload" enctype="multipart/form-data" method="post" id="excelupt">
+          <div class="form-group">
+            <div class="input-group">
+              <div class="alert alert-dismissible alert-successs" id="status"></div>
+            <span class="input-group-addon"><i class="glyphicon glyphicon-email"></i></span>
+              <input type="file" name="fileupload" id="excelfile">
+              <span class="input-group-btn"><button id="submit" class="btn btn-default">Run check</button></span>
+            </div>
+          </div>
+        </form>
+        </div>
+        
+      </div>
+    </div>
+    <div class="container-fluid">
+      <button class="btn btn-primary" style="margin: 20px 0 20px;" id="checkk">Check Status</button>
+     <div id="tablecont">
+
+
+        </div>
+      </div>
+    <!-- Bootstrap core JavaScript -->
+    <script src="{{base_url()}}/public/js/jquery.min.js"></script>
+    <script src="{{base_url()}}/public/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+
+      $(document).ready(function(){
+
+        var form, fileSelect, uploadButton, statusDiv, responseobj, tablei, statusc, maray = [];
+        $("#checkk").click(function(){
+
+          console.log(maray.length);
+
+          for(var imgo=1; imgo<=$("#tablecont table tr").length; imgo++){
+
+            $("#tablecont table tr:nth-child("+(imgo+1)+")").find("td:nth-child(6)").text(maray[imgo-1].substr(0,30));
+          }
+
+        });
+        $("#excelupt").submit(function(e){
+          e.preventDefault();
+
+          form = document.getElementById('excelupt');
+          fileSelect = document.getElementById('excelfile');
+          uploadButton = document.getElementById('submit');
+          statusDiv = document.getElementById('status');
+
+              statusDiv.innerHTML = 'Running File.......';
+      
+              // Get the files from the input
+              var files = fileSelect.files;
+      
+              // Create a new FormData object.
+              var formData = new FormData();
+      
+              //Grab just one file, since we are not allowing multiple file uploads
+              var file = files[0]; 
+          
+
+               // Add the file to the request.
+              formData.append('myfile', file, file.name);
+      
+              // Set up the AJAX request.
+              var xhr = new XMLHttpRequest();
+      
+              // Open the connection.
+              xhr.open('POST', '/urlcrawler/checkfile', true);
+      
+      
+              // Set up a handler for when the request finishes.
+              xhr.onload = function () {
+                if (xhr.status === 200) {
+                  statusDiv.style.display = "none";
+                  responseobj = JSON.parse(this.responseText);
+
+                  populateTable(responseobj);
+                  console.log(responseobj);
+                } else {
+                  statusDiv.innerHTML = 'An error occurred while uploading the file. Try again';
+                }
+              };
+      
+              // Send the Data.
+              xhr.send(formData);
+
+        });
+
+
+
+         function rundisish(){
+          
+           $("#tablecont table tr").each(function(){
+
+               var itemval = $(this).find("td:nth-child(1)").text();
+               //checkResponse(itemval);
+
+               var urlcorrect = itemval.replace("/Sites/www.","https://www.");
+               var finalUrl = urlcorrect.replace("/Global/", "/EN-HK/").replace(".xboxwww.",".xbox.");
+               //console.log(finalUrl);
+     
+     
+               var innerxhr = new XMLHttpRequest();
+     
+               innerxhr.open("POST", "/urlcrawler/checkstatus", true);
+               innerxhr.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+     
+               innerxhr.error = function(){
+     
+                 console.log("error");
+     
+               }
+     
+               innerxhr.onload = function(){
+                 if(this.status == 200){
+                                   
+                   maray.push(this.responseText);
+                  
+     
+                 }
+     
+               }
+     
+               innerxhr.send("url="+finalUrl);
+ 
+          
+            });
+          
+          }
+        function populateTable(responseobj){
+
+          tablei = '<table class="table table-bordered table-striped">';
+          tablei += '<tr><td>Url</td><td>Published By</td><td>Last Saved By</td><td>Published Time</td></td><td>End Published Time</td><td>Page Response</td></tr>';
+
+            for(var i in responseobj){
+
+              tablei += '<tr>';
+              tablei += '<td>'+responseobj[i][0].replace("/Sites/www.","https://www.").replace("/Global/", "/EN-HK/").replace(".xboxwww.",".xbox.")+'</td>';
+              tablei += '<td>'+responseobj[i][2]+'</td>';
+              tablei += '<td>'+responseobj[i][6]+'</td>';
+              tablei += '<td>'+responseobj[i][4]+'</td>';
+              tablei += '<td>'+responseobj[i][5]+'</td>';
+              tablei += '<td></td>';
+              tablei += '</tr>';
+                //console.log((responseobj[i]).length);
+            }
+            $("#urlcheck").show();
+          tablei += '</table>';
+
+          $("#tablecont").append(tablei);
+         rundisish();
+         //setTimeout(console.log(maray), 20000);
+        }
+ 
+
+      });
+
+    </script>
+
+  </body>
+
+</html>
