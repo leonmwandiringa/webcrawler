@@ -76,6 +76,15 @@
     <script>
 
       $(document).ready(function(){
+        
+        $('#crawlertable').DataTable( {
+          $('#crawlertable').DataTable( {
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ]
+        } );
+
 
         var form, fileSelect, uploadButton, statusDiv, responseobj, tablei, statusc, maray = [];
         $("#checkk").click(function(){
@@ -172,14 +181,13 @@
                }
      
                innerxhr.send("url="+finalUrl);
- 
-          
+
             });
           
           }
         function populateTable(responseobj){
 
-          tablei = '<table class="table table-bordered table-striped">';
+          tablei = '<table class="table table-bordered table-striped" id="crawlertable">';
           tablei += '<tr><td>Url</td><td>Published By</td><td>Last Saved By</td><td>Published Time</td></td><td>End Published Time</td><td>Page Response</td></tr>';
 
             for(var i in responseobj){
@@ -192,7 +200,7 @@
               tablei += '<td>'+responseobj[i][5]+'</td>';
               tablei += '<td></td>';
               tablei += '</tr>';
-                //console.log((responseobj[i]).length);
+
             }
             $("#urlcheck").show();
           tablei += '</table>';
@@ -206,6 +214,10 @@
       });
 
     </script>
+    <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.2.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.2.2/js/buttons.html5.min.js"></script>
 
   </body>
 
